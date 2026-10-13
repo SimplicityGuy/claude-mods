@@ -15,7 +15,8 @@ check: validate test
 validate:
     #!/usr/bin/env bash
     set -euo pipefail
-    for plugin in $(just _plugins); do
+    plugins=$(just _plugins)
+    for plugin in $plugins; do
         echo "==> validate $plugin"
         claude plugin validate "$plugin"
     done
@@ -24,7 +25,8 @@ validate:
 test:
     #!/usr/bin/env bash
     set -euo pipefail
-    for plugin in $(just _plugins); do
+    plugins=$(just _plugins)
+    for plugin in $plugins; do
         echo "==> test $plugin"
         claude plugin test "$plugin"
     done
@@ -35,7 +37,8 @@ test:
 typecheck:
     #!/usr/bin/env bash
     set -euo pipefail
-    for plugin in $(just _plugins); do
+    plugins=$(just _plugins)
+    for plugin in $plugins; do
         if [ ! -f "$plugin/tsconfig.json" ] || [ ! -f "$plugin/.claude-plugin/types/tsconfig.json" ]; then
             echo "error: $plugin has no engine-generated types; load it in a Claude Code session first" >&2
             exit 1
