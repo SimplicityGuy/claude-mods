@@ -74,3 +74,6 @@
 sync.remote: "git+ssh://git@github.com/SimplicityGuy/claude-mods.git"
 dolt:
     shared-server: true
+export:
+    auto: true
+    git-add: false
