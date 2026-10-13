@@ -1,0 +1,25 @@
+{
+  "name": "hivewatch",
+  "version": "0.1.0",
+  "description": "Live Beadhive status in a Claude Code pane: in-flight beads, per-agent liveness, molecule progress",
+  "author": {
+    "name": "SimplicityGuy",
+    "url": "https://github.com/SimplicityGuy"
+  },
+  "license": "MIT",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "hives": {
+      "type": "string",
+      "title": "Hives to watch",
+      "description": "Comma-separated bh hive ids (for example github/SimplicityGuy/phaze). Leave empty to watch the hive of the session's working directory.",
+      "default": ""
+    },
+    "refreshSeconds": {
+      "type": "number",
+      "title": "Refresh interval (seconds)",
+      "description": "How often to poll bh. Each poll runs a few bh commands per hive, so keep this at 10 or more.",
+      "default": 20
+    }
+  }
+}
