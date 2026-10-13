@@ -1,0 +1,63 @@
+# One entry point for local checks, `bh work check`, and CI (.github/workflows/ci.yml).
+# Every directory under plugins/ is covered, so a new mod needs no edits here.
+
+set shell := ["bash", "-euo", "pipefail", "-c"]
+
+# TypeScript used for `typecheck`; keep in step with the version the plugins were checked against.
+typescript := "5.9.3"
+
+default: check
+
+# What CI runs: validate and test every plugin.
+check: validate test
+
+# `claude plugin validate` on every plugin.
+validate:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    plugins=$(just _plugins)
+    for plugin in $plugins; do
+        echo "==> validate $plugin"
+        claude plugin validate "$plugin"
+    done
+
+# `claude plugin test` on every plugin.
+test:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    plugins=$(just _plugins)
+    for plugin in $plugins; do
+        echo "==> test $plugin"
+        claude plugin test "$plugin"
+    done
+
+# Strict tsc on every plugin. Not part of `check` or CI: it needs the engine's
+# generated declarations (<plugin>/.claude-plugin/types and <plugin>/tsconfig.json),
+# which Claude Code only writes when a session hot-reloads the mod, never headlessly.
+typecheck:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    plugins=$(just _plugins)
+    for plugin in $plugins; do
+        if [ ! -f "$plugin/tsconfig.json" ] || [ ! -f "$plugin/.claude-plugin/types/tsconfig.json" ]; then
+            echo "error: $plugin has no engine-generated types; load it in a Claude Code session first" >&2
+            exit 1
+        fi
+        echo "==> typecheck $plugin"
+        npx -y -p typescript@{{typescript}} tsc -p "$plugin" --noEmit
+    done
+
+# Plugin directories, one per line; fails when there are none so no check passes vacuously.
+_plugins:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    found=0
+    for dir in plugins/*/; do
+        [ -d "$dir" ] || continue
+        echo "${dir%/}"
+        found=1
+    done
+    if [ "$found" -eq 0 ]; then
+        echo "error: no plugins found under plugins/" >&2
+        exit 1
+    fi
