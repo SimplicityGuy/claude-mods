@@ -44,10 +44,18 @@ agents
 
 ## Developing
 
+Install [just](https://github.com/casey/just) and the Claude Code CLI (CI pins 2.1.296), then:
+
 ```
-claude plugin validate plugins/hivewatch
-claude plugin test plugins/hivewatch
+just check          # validate + test every plugin under plugins/ (what CI runs)
+just validate       # claude plugin validate
+just test           # claude plugin test
+just typecheck      # strict tsc, see below
 claude --plugin-dir plugins/hivewatch      # try it in a session
 ```
+
+CI (`.github/workflows/ci.yml`) runs `just check` on every pull request and on pushes to `main`. A new directory under `plugins/` is picked up automatically.
+
+`just typecheck` needs the engine's type declarations, which Claude Code writes into `<plugin>/.claude-plugin/types/` (and a `tsconfig.json` beside the plugin) when a session loads the mod. They are generated per machine and not committed, and no headless command writes them, so the type-check runs locally after loading the mod once and is not yet part of CI.
 
 MIT licensed.
